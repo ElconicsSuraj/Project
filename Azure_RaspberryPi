@@ -1,0 +1,41 @@
+import time
+import random
+from azure.iot.device import IoTHubDeviceClient, Message
+
+# Replace with your connection string
+CONNECTION_STRING = "HostName=MyIOTLoraHat.azure-devices.net;DeviceId=MyIoTLora;SharedAccessKey=rny+HZs42PbM433fc5i2eCp3NfFBZOojHAIoTJSOsnE="
+
+# Initialize the IoT Hub client
+client = IoTHubDeviceClient.create_from_connection_string(CONNECTION_STRING)
+
+def generate_random_dht11_data():
+    """Generate random temperature and humidity values to simulate DHT11 data."""
+    temperature = round(random.uniform(20.0, 30.0), 2)  # Simulate temperature between 20.0 and 30.0
+    humidity = round(random.uniform(40.0, 60.0), 2)     # Simulate humidity between 40.0 and 60.0
+    return temperature, humidity
+
+try:
+    while True:
+        # Generate random DHT11 data
+        temperature, humidity = generate_random_dht11_data()
+
+        # Prepare the message
+        message = {
+            "temperature": temperature,
+            "humidity": humidity
+        }
+        message_payload = str(message)
+
+        # Create and send the message
+        msg = Message(message_payload)
+        client.send_message(msg)
+        print(f"Message sent: {message_payload}")
+
+        # Wait before sending the next message
+        time.sleep(10)
+
+except KeyboardInterrupt:
+    print("Exiting...")
+
+finally:
+    client.shutdown()
